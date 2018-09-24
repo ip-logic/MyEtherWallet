@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import BackButton from '../../components/BackButton';
+import BackButton from '@/layouts/InterfaceLayout/components/BackButton';
 import EnsBid from './components/EnsBid';
 import NameForbidden from './components/NameForbidden';
 import InitialState from './components/InitialState';
