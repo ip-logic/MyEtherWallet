@@ -2,7 +2,7 @@
   <div class="register-domain-container">
     <back-button :reset-view="resetView"/>
     <ens-bid
-      v-show="uiState === 'nameAvailableAuctionNotStarted'"
+      v-if="uiState === 'nameAvailableAuctionNotStarted'"
       :cancel="cancel"
       :bid-amount="bidAmount"
       :bid-mask="bidMask"
@@ -10,9 +10,11 @@
       :create-bid="createBid"
       :domain-name="domainName"
       @updateSecretPhrase="updateSecretPhrase"
+      @updateBidAmount="updateBidAmount"
+      @updateBidMask="updateBidMask"
     />
     <initial-state
-      v-show="uiState === 'initial'"
+      v-if="uiState === 'initial'"
       :domain-buy-button-click="domainBuyButtonClick"
       :check-domain="checkDomain"
       :domain-name="domainName"
@@ -20,12 +22,12 @@
       @domainNameChange="updateDomainName"
     />
     <name-forbidden
-      v-show="uiState === 'nameIsForbidden'"
+      v-if="uiState === 'nameIsForbidden'"
       :cancel="cancel"
       domain-name="hellothere!"
     />
     <already-owned
-      v-show="uiState === 'nameOwned'"
+      v-if="uiState === 'nameOwned'"
       :name-hash="nameHash"
       :label-hash="labelHash"
       :owner="owner"
@@ -73,22 +75,31 @@ export default {
       owner: '',
       resolverAddress: '',
       deedOwner: '',
-      secretPhrase: ''
+      secretPhrase: '',
+      auctionRegistrarContract: function() {}
     };
   },
+  async mounted() {
+    const ownerAddress = await this.getRegistrarAddress();
+    this.auctionRegistrarContract = new this.$store.state.web3.eth.Contract(
+      RegistrarAbi,
+      ownerAddress
+    );
+
+    console.log(this.auctionRegistrarContract.methods);
+  },
   methods: {
+    async getRegistrarAddress() {
+      const registrarAddress = await this.$store.state.ens.owner('eth');
+      return registrarAddress;
+    },
     async checkDomain() {
       const web3 = this.$store.state.web3;
       this.loading = true;
       this.labelHash = web3.utils.sha3(this.domainName);
-      const ownerAddress = await this.$store.state.ens.owner('eth');
-      const auctionRegistrarContract = new web3.eth.Contract(
-        RegistrarAbi,
-        ownerAddress
-      );
 
       try {
-        const domainStatus = await auctionRegistrarContract.methods
+        const domainStatus = await this.auctionRegistrarContract.methods
           .entries(this.labelHash)
           .call();
         this.processResult(domainStatus);
@@ -99,16 +110,15 @@ export default {
     processResult(res) {
       switch (res[0]) {
         case '0':
-          this.loading = false;
           this.generateKeyPhrase();
           this.uiState = 'nameAvailableAuctionNotStarted';
+          this.loading = false;
           break;
         case '1':
           this.loading = false;
           console.log('Name is available and the auction has been started');
           break;
         case '2':
-          this.loading = false;
           this.getMoreInfo(res[1]);
           break;
         case '3':
@@ -156,8 +166,22 @@ export default {
       this.uiState = 'nameOwned';
       this.loading = false;
     },
-    createBid() {
-      this.loading = false;
+    async createBid() {
+      const address = this.$store.state.wallet.getAddressString();
+      const utils = this.$store.state.web3.utils;
+      const bidHash = await this.auctionRegistrarContract.methods
+        .shaBid(
+          utils.sha3(this.domainName),
+          address,
+          utils.toWei(this.bidAmount.toString(), 'ether'),
+          utils.sha3(this.secretPhrase)
+        )
+        .call();
+      const data = this.auctionRegistrarContract.methods
+        .startAuctionsAndBid([utils.sha3(this.domainName)], bidHash)
+        .encodeABI();
+
+      console.log(data);
     },
     clearInputs() {
       this.loading = false;
@@ -175,6 +199,12 @@ export default {
     domainBuyButtonClick() {},
     updateSecretPhrase(e) {
       this.secretPhrase = e;
+    },
+    updateBidAmount(val) {
+      this.bidAmount = val;
+    },
+    updateBidMask(val) {
+      this.bidMask = val;
     },
     generateKeyPhrase() {
       const wordsArray = [];

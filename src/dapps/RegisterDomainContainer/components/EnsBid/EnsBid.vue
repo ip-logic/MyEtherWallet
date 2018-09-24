@@ -8,29 +8,29 @@
     </div>
     <form class="form">
       <div class="input-container">
-        <label for="bidAmount">Actual Bid Amount</label>
+        <label for="localBidAmount">Actual Bid Amount</label>
         <input
-          v-model="bidAmount"
+          v-model="localBidAmount"
           type="number"
-          name="bidAmount">
+          name="localBidAmount">
       </div>
       <div class="input-container">
-        <label for="bidMask">Bid Mask</label>
+        <label for="localBidMask">Bid Mask</label>
         <input
-          v-model="bidMask"
-          :class="[bidAmount >= bidMask ? 'errored': '']"
+          v-model="localBidMask"
+          :class="[localBidAmount >= localBidMask ? 'errored': '']"
           type="number"
-          name="bidMask">
-        <p 
-          v-show="bidAmount >= bidMask" 
+          name="localBidMask">
+        <p
+          v-show="localBidAmount >= localBidMask"
           class="erroredMsg">We recommend having your Bid mask higher than your Bid amount.</p>
       </div>
       <div class="input-container">
-        <label for="secretPhrase">Secret Phrase</label>
+        <label for="localSecretPhrase">Secret Phrase</label>
         <input
-          v-model="secretPhrase"
+          v-model="localSecretPhrase"
           type="text"
-          name="secretPhrase">
+          name="localSecretPhrase">
       </div>
       <div class="form-buttons">
         <button
@@ -76,9 +76,22 @@ export default {
       default: function() {}
     }
   },
+  data() {
+    return {
+      localSecretPhrase: this.secretPhrase,
+      localBidAmount: this.bidAmount,
+      localBidMask: this.bidMask
+    };
+  },
   watch: {
-    secretPhrase(newVal) {
+    localSecretPhrase(newVal) {
       this.$emit('updateSecretPhrase', newVal);
+    },
+    localBidAmount(newVal) {
+      this.$emit('updateBidAmount', +newVal);
+    },
+    localBidMask(newVal) {
+      this.$emit('updateBidMask', +newVal);
     }
   }
 };
