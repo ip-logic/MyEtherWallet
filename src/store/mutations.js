@@ -41,7 +41,7 @@ const SET_ACCOUNT_BALANCE = function(state, balance) {
 };
 
 const SET_ENS = function(state, ens) {
-  state.gasPrice = ens;
+  state.ens = ens;
 };
 
 const SET_GAS_PRICE = function(state, val) {

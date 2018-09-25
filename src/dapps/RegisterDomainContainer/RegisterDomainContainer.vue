@@ -48,7 +48,8 @@ import AlreadyOwned from './components/AlreadyOwned';
 import RegistrarAbi from '@/helpers/registrarAbi';
 import { Misc } from '@/helpers';
 import bip39 from 'bip39';
-
+// eslint-disable-next-line
+const unit = require('ethjs-unit');
 export default {
   components: {
     'back-button': BackButton,
@@ -76,14 +77,15 @@ export default {
       resolverAddress: '',
       deedOwner: '',
       secretPhrase: '',
+      registrarAddress: '',
       auctionRegistrarContract: function() {}
     };
   },
   async mounted() {
-    const ownerAddress = await this.getRegistrarAddress();
+    this.registrarAddress = await this.getRegistrarAddress();
     this.auctionRegistrarContract = new this.$store.state.web3.eth.Contract(
       RegistrarAbi,
-      ownerAddress
+      this.registrarAddress
     );
 
     console.log(this.auctionRegistrarContract.methods);
@@ -177,11 +179,32 @@ export default {
           utils.sha3(this.secretPhrase)
         )
         .call();
-      const data = this.auctionRegistrarContract.methods
-        .startAuctionsAndBid([utils.sha3(this.domainName)], bidHash)
-        .encodeABI();
+      const auctionBidObj = this.auctionRegistrarContract.methods.startAuctionsAndBid(
+        [utils.sha3(this.domainName)],
+        bidHash
+      );
 
-      console.log(data);
+      const nonce = await this.$store.state.web3.eth.getTransactionCount(
+        this.$store.state.wallet.getAddressString()
+      );
+
+      auctionBidObj
+        .estimateGas({ from: this.$store.state.wallet.getAddressString() })
+        .then(console.log)
+        .catch(console.error);
+
+      const raw = {
+        from: this.$store.state.wallet.getAddressString(),
+        // gas: auctionBidObj.estimateGas(),
+        nonce: nonce,
+        gasPrice: Number(unit.toWei(this.$store.state.gasPrice, 'gwei')),
+        value: unit.toWei(this.bidMask, 'ether'),
+        to: this.registrarAddress,
+        data: auctionBidObj.encodeABI(),
+        chainId: this.$store.state.network.type.chainID
+      };
+
+      console.log(raw);
     },
     clearInputs() {
       this.loading = false;
