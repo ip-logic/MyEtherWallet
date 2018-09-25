@@ -188,23 +188,23 @@ export default {
         this.$store.state.wallet.getAddressString()
       );
 
-      auctionBidObj
-        .estimateGas({ from: this.$store.state.wallet.getAddressString() })
-        .then(console.log)
-        .catch(console.error);
+      const gas = await auctionBidObj.estimateGas({
+        from: address,
+        to: this.registrarAddress
+      });
 
       const raw = {
-        from: this.$store.state.wallet.getAddressString(),
-        // gas: auctionBidObj.estimateGas(),
+        from: address,
+        gas: gas,
         nonce: nonce,
         gasPrice: Number(unit.toWei(this.$store.state.gasPrice, 'gwei')),
-        value: unit.toWei(this.bidMask, 'ether'),
+        value: Number(unit.toWei(this.bidMask, 'ether')),
         to: this.registrarAddress,
         data: auctionBidObj.encodeABI(),
         chainId: this.$store.state.network.type.chainID
       };
 
-      console.log(raw);
+      return raw
     },
     clearInputs() {
       this.loading = false;
