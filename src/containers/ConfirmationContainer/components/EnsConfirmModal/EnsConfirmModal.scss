@@ -104,12 +104,14 @@
 
   .cancel-button {
     @extend %button;
+
     border: 1px solid $mew-green;
     color: $mew-green;
   }
 
   .submit-button {
     @extend %button;
+
     background-color: $mew-green;
     color: $white;
   }
