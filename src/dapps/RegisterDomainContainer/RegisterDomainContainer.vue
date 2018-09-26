@@ -87,8 +87,6 @@ export default {
       RegistrarAbi,
       this.registrarAddress
     );
-
-    console.log(this.auctionRegistrarContract.methods);
   },
   methods: {
     async getRegistrarAddress() {
@@ -171,16 +169,18 @@ export default {
     async createBid() {
       const address = this.$store.state.wallet.getAddressString();
       const utils = this.$store.state.web3.utils;
+      const domainName = utils.sha3(this.domainName);
       const bidHash = await this.auctionRegistrarContract.methods
         .shaBid(
-          utils.sha3(this.domainName),
+          domainName,
           address,
           utils.toWei(this.bidAmount.toString(), 'ether'),
           utils.sha3(this.secretPhrase)
         )
         .call();
+
       const auctionBidObj = this.auctionRegistrarContract.methods.startAuctionsAndBid(
-        [utils.sha3(this.domainName)],
+        [domainName],
         bidHash
       );
 
@@ -190,9 +190,13 @@ export default {
 
       const gas = await auctionBidObj.estimateGas({
         from: address,
-        to: this.registrarAddress
+        to: this.registrarAddress,
+        value: utils.toWei(this.bidMask.toString(), 'ether')
       });
 
+      const date = new Date();
+      const auctionDateEnd = date.setDate(date.getDate() + 5);
+      const revealDate = date.setDate(date.getDate() - 2);
       const raw = {
         from: address,
         gas: gas,
@@ -201,10 +205,48 @@ export default {
         value: Number(unit.toWei(this.bidMask, 'ether')),
         to: this.registrarAddress,
         data: auctionBidObj.encodeABI(),
-        chainId: this.$store.state.network.type.chainID
+        chainId: this.$store.state.network.type.chainID,
+        ensObj: {
+          name: this.domainName,
+          nameSHA3: utils.sha3(this.domainName),
+          bidAmount: this.bidAmount,
+          bidMask: this.bidMask,
+          secretPhrase: this.secretPhrase,
+          secretPhraseSHA3: utils.sha3(this.secretPhrase),
+          auctionDateEnd: new Date(auctionDateEnd),
+          revealDate: new Date(revealDate)
+        }
       };
 
-      return raw
+      if (window.web3 && this.$store.state.wallet.identifier === 'Web3') {
+        raw['web3WalletOnly'] = true;
+      }
+
+      this.$store.state.web3.eth
+        .sendTransaction(raw)
+        .once('transactionHash', hash => {
+          this.$store.dispatch('addNotification', [
+            address,
+            hash,
+            'Transaction Hash'
+          ]);
+          this.getBalance();
+        })
+        .on('receipt', res => {
+          this.$store.dispatch('addNotification', [
+            address,
+            res,
+            'Transaction Receipt'
+          ]);
+          this.getBalance();
+        })
+        .on('error', err => {
+          this.$store.dispatch('addNotification', [
+            address,
+            err,
+            'Transaction Error'
+          ]);
+        });
     },
     clearInputs() {
       this.loading = false;
