@@ -91,6 +91,7 @@
 
 %button {
   border-radius: 4px;
+  color: $white;
   cursor: pointer;
   height: 64px;
   width: 227px;
@@ -102,17 +103,16 @@
   justify-content: space-around;
   padding: 30px 55px;
 
-  .cancel-button {
+  button {
     @extend %button;
+  }
 
+  .cancel-button {
     border: 1px solid $mew-green;
     color: $mew-green;
   }
 
   .submit-button {
-    @extend %button;
-
     background-color: $mew-green;
-    color: $white;
   }
 }

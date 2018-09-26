@@ -230,7 +230,6 @@ export default {
             hash,
             'Transaction Hash'
           ]);
-          this.getBalance();
         })
         .on('receipt', res => {
           this.$store.dispatch('addNotification', [
@@ -238,7 +237,6 @@ export default {
             res,
             'Transaction Receipt'
           ]);
-          this.getBalance();
         })
         .on('error', err => {
           this.$store.dispatch('addNotification', [

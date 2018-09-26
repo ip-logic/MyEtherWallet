@@ -35,7 +35,7 @@
           </div>
           <div class="detail-info-item">
             <span class="detail-title">Reveal Date</span>
-            <span class="detail-value">{{ ens.revealDate }}</span>
+            <span class="detail-value">{{ formatDate(ens.revealDate) }}</span>
           </div>
           <div class="detail-info-item">
             <span class="detail-title">Bid Mask</span>
@@ -43,7 +43,7 @@
           </div>
           <div class="detail-info-item">
             <span class="detail-title">Auction Ends</span>
-            <span class="detail-value">{{ ens.auctionDateEnd }}</span>
+            <span class="detail-value">{{ formatDate(ens.auctionDateEnd) }}</span>
           </div>
           <div>
             <div class="json-container">
@@ -65,9 +65,23 @@
             name="button"
             @click="close">{{ $t('common.cancel') }}</button>
           <button
+            v-if="isHardwareWallet"
+            :class="[signedTx !== ''? 'submit-button': 'disabled']"
+            type="button"
+            name="button"
+            @click="sendTx"> Confirm with HW wallet </button>
+          <button
+            v-else-if="$store.state.wallet && $store.state.wallet.brand === 'Web3'"
             type="button"
             class="submit-button"
-            name="button">{{ $t('common.confirmAndSave') }}</button>
+            name="button"
+            @click="close">Proceed to your Web3 wallet provider.</button>
+          <button
+            v-else
+            type="button"
+            class="submit-button"
+            name="button"
+            @click="sendTx">{{ $t('common.confirmAndSave') }}</button>
         </div>
       </div>
     </b-modal>
@@ -153,6 +167,11 @@ export default {
         secretPhrase: val.secretPhrase,
         secretPhraseSHA3: val.secretPhraseSHA3
       });
+    }
+  },
+  mounted() {
+    if (this.$store.wallet) {
+      console.log(this.$store.state.wallet);
     }
   },
   methods: {

@@ -105,7 +105,7 @@ export default {
       signedTx: '',
       messageToSign: '',
       signedMessage: '',
-      successMessage: '',
+      successMessage: 'Success',
       linkMessage: 'OK',
       dismissed: true,
       web3WalletHash: '',
