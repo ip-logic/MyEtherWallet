@@ -50,7 +50,10 @@ export default {
     startClock() {
       const auctionCloses = new Date(this.dateNumber);
       const revealDate = auctionCloses.setDate(auctionCloses.getDate() - 2);
-      const endDate = this.dateType === 'reveal' ? new Date(revealDate).getTime(): new Date(this.dateNumber);
+      const endDate =
+        this.dateType === 'reveal'
+          ? new Date(revealDate).getTime()
+          : new Date(this.dateNumber);
       let startDate;
       let hours = 0;
       let seconds = 0;
@@ -63,13 +66,17 @@ export default {
         difference = endDate - startDate;
         seconds = Math.floor((difference % (1000 * 60)) / 1000);
         minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        hours = Math.floor(
+          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
         days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        this.time = `${days} Day(s) ${hours < 10? "0"+hours : hours}:${minutes < 10? "0"+minutes : minutes}:${seconds < 10? "0"+seconds : seconds}`;
-        if(seconds < 0) {
+        this.time = `${days} Day(s) ${hours < 10 ? '0' + hours : hours}:${
+          minutes < 10 ? '0' + minutes : minutes
+        }:${seconds < 10 ? '0' + seconds : seconds}`;
+        if (seconds < 0) {
           const self = this;
-          this.time = "Reveal bids on going."
-          clearInterval(self.timer)
+          this.time = 'Reveal bids on going.';
+          clearInterval(self.timer);
         }
       }, 1000);
     }

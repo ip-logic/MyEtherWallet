@@ -1,15 +1,25 @@
 <template lang="html">
   <div>
-    <timer dateType="reveal" v-if="state === 'nameAvailableAuctionStarted'" :dateNumber="auctionDateEnd" />
-    <timer dateType="auction" v-if="state === 'nameAvailableAuctionStarted'" :dateNumber="auctionDateEnd" />
+    <timer 
+      v-if="state === 'nameAvailableAuctionStarted'" 
+      :date-number="auctionDateEnd" 
+      date-type="reveal" />
+    <timer 
+      v-if="state === 'nameAvailableAuctionStarted'" 
+      :date-number="auctionDateEnd" 
+      date-type="auction" />
     <div class="name-available-container">
-      <div class="content-header" v-if="state==='nameAvailableAuctionNotStarted'">
+      <div 
+        v-if="state==='nameAvailableAuctionNotStarted'" 
+        class="content-header">
         <div>
           <h3> {{ domainName }}.eth </h3>
           <p>Cheers! This Domain is available.</p>
         </div>
       </div>
-      <div class="auction-started" v-if="state==='nameAvailableAuctionStarted'">
+      <div 
+        v-if="state==='nameAvailableAuctionStarted'" 
+        class="auction-started">
         <div>
           <h3> An auction has been started for {{ domainName }}.eth </h3>
         </div>
@@ -47,16 +57,16 @@
             class="cancel"
             @click="cancel">Back</button>
           <button
+            v-if="state === 'nameAvailableAuctionNotStarted'"
             type="submit"
             name="submit"
             class="submit"
-            v-if="state === 'nameAvailableAuctionNotStarted'"
             @click.prevent="startAuctionAndBid">Start Auction</button>
           <button
+            v-if="state === 'nameAvailableAuctionStarted'"
             type="submit"
             name="submit"
             class="submit"
-            v-if="state === 'nameAvailableAuctionStarted'"
             @click.prevent="() => {console.log('hello there!')}">Bid</button>
         </div>
       </form>
@@ -65,10 +75,10 @@
 </template>
 
 <script>
-import Timer from "../../components/Timer";
+import Timer from '../../components/Timer';
 export default {
   components: {
-    'timer': Timer
+    timer: Timer
   },
   props: {
     domainName: {

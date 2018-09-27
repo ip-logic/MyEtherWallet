@@ -9,11 +9,11 @@
       :secret-phrase="secretPhrase"
       :start-auction-and-bid="startAuctionAndBid"
       :domain-name="domainName"
+      :state="uiState"
+      :auction-date-end="auctionDateEnd"
       @updateSecretPhrase="updateSecretPhrase"
       @updateBidAmount="updateBidAmount"
       @updateBidMask="updateBidMask"
-      :state="uiState"
-      :auctionDateEnd="auctionDateEnd"
     />
     <initial-state-container
       v-if="uiState === 'initial'"
@@ -133,7 +133,7 @@ export default {
           break;
         case '4':
           this.loading = false;
-          this.uiState = 'nameAvailableAuctionStartedBidUnavailable'
+          this.uiState = 'nameAvailableAuctionStartedBidUnavailable';
           console.log('Name is currently in the ‘reveal’ stage of the auction');
           break;
       }
@@ -230,7 +230,7 @@ export default {
       }
 
       this.raw = raw;
-      this.uiState = 'confirmationPage'
+      this.uiState = 'confirmationPage';
 
       // this.$store.state.web3.eth
       //   .sendTransaction(raw)

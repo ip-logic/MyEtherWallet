@@ -92,7 +92,7 @@
 // eslint-disable-next-line
 const unit = require('ethjs-unit');
 import AddressBlock from '../AddressBlock';
-import {Misc} from '@/helpers';
+import { Misc } from '@/helpers';
 export default {
   components: {
     'address-block': AddressBlock
