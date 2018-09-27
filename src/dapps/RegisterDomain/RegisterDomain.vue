@@ -18,7 +18,7 @@
     <confirm-container
       v-if="uiState === 'confirmationPage'"
       :ens="ens"
-      :fromPage="fromPage"
+      :from-page="fromPage"
       :back="back"
     />
     <initial-state-container
@@ -241,7 +241,7 @@ export default {
 
       this.raw = raw;
       this.uiState = 'confirmationPage';
-      this.fromPage = 'nameAvailableAuctionNotStarted'
+      this.fromPage = 'nameAvailableAuctionNotStarted';
     },
     clearInputs() {
       this.loading = false;

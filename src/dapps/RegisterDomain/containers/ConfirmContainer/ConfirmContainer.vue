@@ -94,13 +94,12 @@ export default {
     }
   },
   methods: {
-    sendTx() {
-    },
+    sendTx() {},
     copyString() {
       this.$refs['json'].select();
       document.execCommand('copy');
       window.getSelection().removeAllRanges();
-    },
+    }
   }
 };
 </script>

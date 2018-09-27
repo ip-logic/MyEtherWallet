@@ -178,9 +178,9 @@ export default {
         this.web3WalletHash = _response;
       });
       this.showSuccessModal(
-          'Continue transaction with Web3 Wallet Provider.',
-          'Close'
-        );
+        'Continue transaction with Web3 Wallet Provider.',
+        'Close'
+      );
     });
 
     this.$eventHub.$on(
