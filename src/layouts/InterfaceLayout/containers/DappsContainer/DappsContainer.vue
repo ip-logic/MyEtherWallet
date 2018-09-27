@@ -12,7 +12,7 @@
           @click="switchView(dapp.param)"/>
       </div>
     </div>
-    <register-domain-container
+    <register-domain
       v-show="selectedDapp === 'register-domain'"
       :reset-view="switchView"/>
     <domain-sale-container
@@ -25,7 +25,7 @@
 import InterfaceContainerTitle from '../../components/InterfaceContainerTitle';
 import DappButtons from '../../components/DappButtons';
 import DomainSaleContainer from '@/dapps/DomainSaleContainer';
-import RegisterDomainContainer from '@/dapps/RegisterDomainContainer';
+import RegisterDomain from '@/dapps/RegisterDomain';
 
 import domainSale from '@/assets/images/icons/domain-sale.svg';
 import registerDomain from '@/assets/images/icons/domain.svg';
@@ -34,7 +34,7 @@ export default {
     'interface-container-title': InterfaceContainerTitle,
     'dapp-buttons': DappButtons,
     'domain-sale-container': DomainSaleContainer,
-    'register-domain-container': RegisterDomainContainer
+    'register-domain': RegisterDomain
   },
   data() {
     return {

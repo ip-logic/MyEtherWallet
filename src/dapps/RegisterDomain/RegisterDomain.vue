@@ -1,19 +1,21 @@
 <template>
   <div class="register-domain-container">
     <back-button :reset-view="resetView"/>
-    <ens-bid
-      v-if="uiState === 'nameAvailableAuctionNotStarted'"
+    <ens-bid-container
+      v-if="uiState === 'nameAvailableAuctionNotStarted' || uiState === 'nameAvailableAuctionStarted'"
       :cancel="cancel"
       :bid-amount="bidAmount"
       :bid-mask="bidMask"
       :secret-phrase="secretPhrase"
-      :create-bid="createBid"
+      :start-auction-and-bid="startAuctionAndBid"
       :domain-name="domainName"
       @updateSecretPhrase="updateSecretPhrase"
       @updateBidAmount="updateBidAmount"
       @updateBidMask="updateBidMask"
+      :state="uiState"
+      :auctionDateEnd="auctionDateEnd"
     />
-    <initial-state
+    <initial-state-container
       v-if="uiState === 'initial'"
       :domain-buy-button-click="domainBuyButtonClick"
       :check-domain="checkDomain"
@@ -21,12 +23,12 @@
       :loading="loading"
       @domainNameChange="updateDomainName"
     />
-    <name-forbidden
+    <name-forbidden-container
       v-if="uiState === 'nameIsForbidden'"
       :cancel="cancel"
       domain-name="hellothere!"
     />
-    <already-owned
+    <already-owned-container
       v-if="uiState === 'nameOwned'"
       :name-hash="nameHash"
       :label-hash="labelHash"
@@ -41,10 +43,10 @@
 
 <script>
 import BackButton from '@/layouts/InterfaceLayout/components/BackButton';
-import EnsBid from './components/EnsBid';
-import NameForbidden from './components/NameForbidden';
-import InitialState from './components/InitialState';
-import AlreadyOwned from './components/AlreadyOwned';
+import EnsBidContainer from './containers/EnsBidContainer';
+import NameForbiddenContainer from './containers/NameForbiddenContainer';
+import InitialStateContainer from './containers/InitialStateContainer';
+import AlreadyOwnedContainer from './containers/AlreadyOwnedContainer';
 import RegistrarAbi from '@/helpers/registrarAbi';
 import { Misc } from '@/helpers';
 import bip39 from 'bip39';
@@ -53,10 +55,10 @@ const unit = require('ethjs-unit');
 export default {
   components: {
     'back-button': BackButton,
-    'ens-bid': EnsBid,
-    'initial-state': InitialState,
-    'name-forbidden': NameForbidden,
-    'already-owned': AlreadyOwned
+    'ens-bid-container': EnsBidContainer,
+    'initial-state-container': InitialStateContainer,
+    'name-forbidden-container': NameForbiddenContainer,
+    'already-owned-container': AlreadyOwnedContainer
   },
   props: {
     resetView: {
@@ -78,7 +80,9 @@ export default {
       deedOwner: '',
       secretPhrase: '',
       registrarAddress: '',
-      auctionRegistrarContract: function() {}
+      auctionDateEnd: '',
+      auctionRegistrarContract: function() {},
+      raw: {}
     };
   },
   async mounted() {
@@ -115,8 +119,10 @@ export default {
           this.loading = false;
           break;
         case '1':
+          this.generateKeyPhrase();
           this.loading = false;
-          console.log('Name is available and the auction has been started');
+          this.auctionDateEnd = res[2] * 1000;
+          this.uiState = 'nameAvailableAuctionStarted';
           break;
         case '2':
           this.getMoreInfo(res[1]);
@@ -127,6 +133,7 @@ export default {
           break;
         case '4':
           this.loading = false;
+          this.uiState = 'nameAvailableAuctionStartedBidUnavailable'
           console.log('Name is currently in the ‘reveal’ stage of the auction');
           break;
       }
@@ -166,7 +173,7 @@ export default {
       this.uiState = 'nameOwned';
       this.loading = false;
     },
-    async createBid() {
+    async startAuctionAndBid() {
       const address = this.$store.state.wallet.getAddressString();
       const utils = this.$store.state.web3.utils;
       const domainName = utils.sha3(this.domainName);
@@ -222,29 +229,32 @@ export default {
         raw['web3WalletOnly'] = true;
       }
 
-      this.$store.state.web3.eth
-        .sendTransaction(raw)
-        .once('transactionHash', hash => {
-          this.$store.dispatch('addNotification', [
-            address,
-            hash,
-            'Transaction Hash'
-          ]);
-        })
-        .on('receipt', res => {
-          this.$store.dispatch('addNotification', [
-            address,
-            res,
-            'Transaction Receipt'
-          ]);
-        })
-        .on('error', err => {
-          this.$store.dispatch('addNotification', [
-            address,
-            err,
-            'Transaction Error'
-          ]);
-        });
+      this.raw = raw;
+      this.uiState = 'confirmationPage'
+
+      // this.$store.state.web3.eth
+      //   .sendTransaction(raw)
+      //   .once('transactionHash', hash => {
+      //     this.$store.dispatch('addNotification', [
+      //       address,
+      //       hash,
+      //       'Transaction Hash'
+      //     ]);
+      //   })
+      //   .on('receipt', res => {
+      //     this.$store.dispatch('addNotification', [
+      //       address,
+      //       res,
+      //       'Transaction Receipt'
+      //     ]);
+      //   })
+      //   .on('error', err => {
+      //     this.$store.dispatch('addNotification', [
+      //       address,
+      //       err,
+      //       'Transaction Error'
+      //     ]);
+      //   });
     },
     clearInputs() {
       this.loading = false;
@@ -287,5 +297,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'RegisterDomainContainer.scss';
+@import 'RegisterDomain.scss';
 </style>

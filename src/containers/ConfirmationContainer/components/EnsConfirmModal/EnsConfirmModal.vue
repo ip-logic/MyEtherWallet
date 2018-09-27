@@ -92,6 +92,7 @@
 // eslint-disable-next-line
 const unit = require('ethjs-unit');
 import AddressBlock from '../AddressBlock';
+import {Misc} from '@/helpers';
 export default {
   components: {
     'address-block': AddressBlock
@@ -150,7 +151,8 @@ export default {
   },
   data() {
     return {
-      jsonText: ''
+      jsonText: '',
+      formatDate: Misc.formatDate
     };
   },
   watch: {
@@ -169,11 +171,6 @@ export default {
       });
     }
   },
-  mounted() {
-    if (this.$store.wallet) {
-      console.log(this.$store.state.wallet);
-    }
-  },
   methods: {
     sendTx() {
       if (this.signedTx !== '') {
@@ -184,16 +181,6 @@ export default {
       this.$refs['json'].select();
       document.execCommand('copy');
       window.getSelection().removeAllRanges();
-    },
-    formatDate(date) {
-      const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
-      const day = days[new Date(date).getDay()];
-      const dateString = new Date(date).toLocaleDateString();
-      const regExp = /\(([^)]+)\)/;
-      const timeString = new Date(date).toTimeString().replace(regExp, '');
-
-      const localTime = new Date(date).toLocaleTimeString();
-      return `${day}. ${dateString} ${timeString} - ${localTime}`;
     },
     close() {
       this.$refs.confirmation.hide();
