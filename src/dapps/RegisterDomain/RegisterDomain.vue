@@ -15,6 +15,12 @@
       @updateBidAmount="updateBidAmount"
       @updateBidMask="updateBidMask"
     />
+    <confirm-container
+      v-if="uiState === 'confirmationPage'"
+      :ens="ens"
+      :fromPage="fromPage"
+      :back="back"
+    />
     <initial-state-container
       v-if="uiState === 'initial'"
       :domain-buy-button-click="domainBuyButtonClick"
@@ -43,6 +49,7 @@
 
 <script>
 import BackButton from '@/layouts/InterfaceLayout/components/BackButton';
+import ConfirmContainer from './containers/ConfirmContainer';
 import EnsBidContainer from './containers/EnsBidContainer';
 import NameForbiddenContainer from './containers/NameForbiddenContainer';
 import InitialStateContainer from './containers/InitialStateContainer';
@@ -55,6 +62,7 @@ const unit = require('ethjs-unit');
 export default {
   components: {
     'back-button': BackButton,
+    'confirm-container': ConfirmContainer,
     'ens-bid-container': EnsBidContainer,
     'initial-state-container': InitialStateContainer,
     'name-forbidden-container': NameForbiddenContainer,
@@ -80,9 +88,10 @@ export default {
       deedOwner: '',
       secretPhrase: '',
       registrarAddress: '',
-      auctionDateEnd: '',
+      auctionDateEnd: 0,
       auctionRegistrarContract: function() {},
-      raw: {}
+      raw: {},
+      fromPage: 'initial'
     };
   },
   async mounted() {
@@ -137,6 +146,9 @@ export default {
           console.log('Name is currently in the ‘reveal’ stage of the auction');
           break;
       }
+    },
+    back() {
+      this.uiState = this.from;
     },
     cancel() {
       this.uiState = 'initial';
@@ -213,16 +225,14 @@ export default {
         to: this.registrarAddress,
         data: auctionBidObj.encodeABI(),
         chainId: this.$store.state.network.type.chainID,
-        ensObj: {
-          name: this.domainName,
-          nameSHA3: utils.sha3(this.domainName),
-          bidAmount: this.bidAmount,
-          bidMask: this.bidMask,
-          secretPhrase: this.secretPhrase,
-          secretPhraseSHA3: utils.sha3(this.secretPhrase),
-          auctionDateEnd: new Date(auctionDateEnd),
-          revealDate: new Date(revealDate)
-        }
+        name: this.domainName,
+        nameSHA3: utils.sha3(this.domainName),
+        bidAmount: this.bidAmount,
+        bidMask: this.bidMask,
+        secretPhrase: this.secretPhrase,
+        secretPhraseSHA3: utils.sha3(this.secretPhrase),
+        auctionDateEnd: new Date(auctionDateEnd),
+        revealDate: new Date(revealDate)
       };
 
       if (window.web3 && this.$store.state.wallet.identifier === 'Web3') {
@@ -231,30 +241,7 @@ export default {
 
       this.raw = raw;
       this.uiState = 'confirmationPage';
-
-      // this.$store.state.web3.eth
-      //   .sendTransaction(raw)
-      //   .once('transactionHash', hash => {
-      //     this.$store.dispatch('addNotification', [
-      //       address,
-      //       hash,
-      //       'Transaction Hash'
-      //     ]);
-      //   })
-      //   .on('receipt', res => {
-      //     this.$store.dispatch('addNotification', [
-      //       address,
-      //       res,
-      //       'Transaction Receipt'
-      //     ]);
-      //   })
-      //   .on('error', err => {
-      //     this.$store.dispatch('addNotification', [
-      //       address,
-      //       err,
-      //       'Transaction Error'
-      //     ]);
-      //   });
+      this.fromPage = 'nameAvailableAuctionNotStarted'
     },
     clearInputs() {
       this.loading = false;

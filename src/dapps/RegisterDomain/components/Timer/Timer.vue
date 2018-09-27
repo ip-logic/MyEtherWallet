@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       text: '',
-      time: '',
+      time: '0 Day(s) --:--:--',
       timer: () => {}
     };
   },

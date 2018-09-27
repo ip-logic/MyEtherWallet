@@ -1,24 +1,24 @@
 <template lang="html">
   <div>
-    <timer 
-      v-if="state === 'nameAvailableAuctionStarted'" 
-      :date-number="auctionDateEnd" 
+    <timer
+      v-if="state === 'nameAvailableAuctionStarted'"
+      :date-number="auctionDateEnd"
       date-type="reveal" />
-    <timer 
-      v-if="state === 'nameAvailableAuctionStarted'" 
-      :date-number="auctionDateEnd" 
+    <timer
+      v-if="state === 'nameAvailableAuctionStarted'"
+      :date-number="auctionDateEnd"
       date-type="auction" />
     <div class="name-available-container">
-      <div 
-        v-if="state==='nameAvailableAuctionNotStarted'" 
+      <div
+        v-if="state==='nameAvailableAuctionNotStarted'"
         class="content-header">
         <div>
           <h3> {{ domainName }}.eth </h3>
           <p>Cheers! This Domain is available.</p>
         </div>
       </div>
-      <div 
-        v-if="state==='nameAvailableAuctionStarted'" 
+      <div
+        v-if="state==='nameAvailableAuctionStarted'"
         class="auction-started">
         <div>
           <h3> An auction has been started for {{ domainName }}.eth </h3>

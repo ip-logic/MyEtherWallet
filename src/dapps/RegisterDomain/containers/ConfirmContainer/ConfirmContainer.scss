@@ -1,26 +1,4 @@
-@import '~@/scss/GlobalVariables';
-
-.bootstrap-modal .modal-dialog {
-  max-width: 700px;
-}
-
-.modal-content {
-  padding: 23px;
-
-  .direction {
-    display: flex;
-    margin: 0 auto;
-  }
-
-  .addresses-container {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .ens-name {
-    padding: 25px 10px 0;
-  }
-}
+@import '../../RegisterDomain';
 
 .submit-button-container {
   padding: 60px 0;
